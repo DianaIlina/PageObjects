@@ -70,16 +70,4 @@ public class MyAccount {
         int amount = faker.number().numberBetween(1, maxAmount);
         return amount;
     }
-
-
-
-//    public static int checkBalance(String receiveCard) {
-//        ElementsCollection divs = $$(".list__item div");
-//
-//        int balance = MyAccount.extractBalance(receiveCard);
-//        return balance;
-//    }
-
-
-
 }
