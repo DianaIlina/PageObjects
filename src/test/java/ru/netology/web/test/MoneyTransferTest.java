@@ -25,6 +25,7 @@ public class MoneyTransferTest {
 
     @Test
     void transferMoney() {
+        Configuration.headless = true;
 
         DataHelper.CardData[] cards = MyAccount.getCardsArray();
         DataHelper.CardData receiveCard = cards[0];
