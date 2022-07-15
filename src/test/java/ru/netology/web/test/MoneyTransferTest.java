@@ -12,6 +12,8 @@ public class MoneyTransferTest {
 
     @BeforeEach
     void LogInBeforeTest() {
+        Configuration.headless = true;
+
         Login login = open("http://localhost:9999", Login.class);
         DataHelper.AuthInfo authInfo = DataHelper.getAuthInfo();
 
@@ -23,7 +25,6 @@ public class MoneyTransferTest {
 
     @Test
     void transferMoney() {
-        Configuration.headless = true;
 
         DataHelper.CardData[] cards = MyAccount.getCardsArray();
         DataHelper.CardData receiveCard = cards[0];
