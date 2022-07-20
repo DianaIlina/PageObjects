@@ -1,6 +1,6 @@
-package ru.netology.web.page;
+package ru.netology.web.data;
 
-import lombok.Data;
+import com.github.javafaker.Faker;
 import lombok.Value;
 
 public class DataHelper {
@@ -25,27 +25,11 @@ public class DataHelper {
         return new VerificationCode("12345");
     }
 
-    @Data
+    @Value
     public static class CardData {
         String id;
         int balance;
         String number;
-
-        public CardData(String id, int balance, String number) {
-            this.id = id;
-            this.balance = balance;
-            this.number = number;
-        }
-    }
-
-
-    public static CardData findCardByID(CardData[] cards, String id) {
-        for (CardData card : cards) {
-            if(card.getId().equals(id)) {
-                return card;
-            }
-        }
-        return null;
     }
 
     public static CardData findCardByNumber(CardData[] cards, String number) {
@@ -70,5 +54,32 @@ public class DataHelper {
 
         CardDetails[] Result = {Card1, Card2};
         return Result;
+    }
+
+    public static String findCardNumberFull(String tail) {
+        for (DataHelper.CardDetails card : DataHelper.getCardNumbers()) {
+            if (card.getCardNumberFull().substring(card.getCardNumberFull().length()-4).equals(tail)) {
+                return card.getCardNumberFull();
+            }
+        }
+        return null;
+    }
+
+    public static String[] findWithdrawingCardNumbers(DataHelper.CardData[] cards, String removeCard) {
+        String[] withdrawingCards = new String[cards.length-1];
+        int copyToIndex = 0;
+        for (DataHelper.CardData card : cards) {
+            if (!card.getNumber().equals(removeCard)) {
+                withdrawingCards[copyToIndex] = card.getNumber();
+                copyToIndex++;
+            }
+        }
+        return withdrawingCards;
+    }
+
+    public static int calculateAmount(int maxAmount) {
+        Faker faker = new Faker();
+        int amount = faker.number().numberBetween(1, maxAmount);
+        return amount;
     }
 }

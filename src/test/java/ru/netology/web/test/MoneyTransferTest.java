@@ -3,9 +3,12 @@ package ru.netology.web.test;
 import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.netology.web.data.DataHelper;
 import ru.netology.web.page.*;
 
 import static com.codeborne.selenide.Selenide.open;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class MoneyTransferTest {
     CardPage cardPage;
@@ -14,34 +17,41 @@ public class MoneyTransferTest {
     void LogInBeforeTest() {
         Configuration.headless = true;
 
-        Login login = open("http://localhost:9999", Login.class);
+        LoginPage loginPage = open("http://localhost:9999", LoginPage.class);
         DataHelper.AuthInfo authInfo = DataHelper.getAuthInfo();
 
-        VerificationPage verificationPage = login.validLogin(authInfo);
+        VerificationPage verificationPage = loginPage.validLogin(authInfo);
         DataHelper.VerificationCode verificationCode = DataHelper.getVerificationCode(authInfo);
 
         cardPage = verificationPage.validVerify(verificationCode);
     }
 
     @Test
-    void transferMoney() {
+    public void transferMoney() {
+        MyAccount myAccount = new MyAccount();
 
-        DataHelper.CardData[] cards = MyAccount.getCardsArray();
-        DataHelper.CardData receiveCard = cards[0];
+        myAccount.getCardsArray();
+        DataHelper.CardData receiveCard = myAccount.cards[0];
 
-        String withdrawCardNumber = MyAccount.findWithdrawingCardNumbers(cards, receiveCard.getNumber())[0];
-        DataHelper.CardData withdrawCard = DataHelper.findCardByNumber(cards, withdrawCardNumber);
+        String withdrawCardNumber = DataHelper.findWithdrawingCardNumbers(myAccount.cards, receiveCard.getNumber())[0];
+        DataHelper.CardData withdrawCard = DataHelper.findCardByNumber(myAccount.cards, withdrawCardNumber);
 
-        int transferringAmount = MyAccount.calculateAmount(withdrawCard.getBalance());
+        assertNotNull(withdrawCard);
+
+        int transferringAmount = DataHelper.calculateAmount(withdrawCard.getBalance());
 
         int oldReceiveCardBalance = receiveCard.getBalance();
         int oldWithdrawCardBalance = withdrawCard.getBalance();
 
-        cardPage.Transfer(receiveCard.getId(), transferringAmount, withdrawCardNumber);
+        TransferPage transferPage = cardPage.topUp(receiveCard.getId());
 
-        cards = MyAccount.getCardsArray();
+        transferPage.transfer(transferringAmount, withdrawCardNumber);
 
-        assert oldReceiveCardBalance + transferringAmount == cards[0].getBalance();
-        assert oldWithdrawCardBalance - transferringAmount == DataHelper.findCardByNumber(cards, withdrawCardNumber).getBalance();
+        myAccount.getCardsArray();
+
+        assertEquals(oldReceiveCardBalance + transferringAmount,
+                myAccount.cards[0].getBalance());
+        assertEquals(oldWithdrawCardBalance - transferringAmount,
+                DataHelper.findCardByNumber(myAccount.cards, withdrawCardNumber).getBalance());
     }
 }
